@@ -13,7 +13,7 @@ class CoreDataManager {
     let persistentContainer: NSPersistentContainer
 
     private init() {
-        persistentContainer = NSPersistentContainer(name: "ToDoAppEffectiveMobile") // имя твоей модели
+        persistentContainer = NSPersistentContainer(name: "ToDoAppEffectiveMobile") 
         persistentContainer.loadPersistentStores { desc, error in
             if let error = error {
                 fatalError("Core Data failed to load: \(error)")

@@ -5,6 +5,13 @@
 //  Created by Arman  Urstem on 28.05.2025.
 //
 
+//
+//  TaskDetailViewController.swift
+//  ToDoAppEffectiveMobile
+//
+//  Created by Arman Urstem on 28.05.2025.
+//
+
 import UIKit
 import CoreData
 
@@ -12,9 +19,10 @@ protocol TaskDetailViewControllerDelegate: AnyObject {
     func didSaveTask()
 }
 
-class TaskDetailViewController: UIViewController {
+class TaskDetailViewController: UIViewController, UITextViewDelegate {
 
-    var task: Task? // если nil — создаём новую задачу
+    var task: Task?
+    var isNewTask = false
     weak var delegate: TaskDetailViewControllerDelegate?
 
     private let titleField: UITextField = {
@@ -32,29 +40,57 @@ class TaskDetailViewController: UIViewController {
         return tv
     }()
 
-    private let completedSwitch: UISwitch = {
-        let sw = UISwitch()
-        return sw
+    private let descriptionPlaceholderLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Описание задачи"
+        label.textColor = .placeholderText
+        label.font = UIFont.systemFont(ofSize: 14)
+        return label
     }()
+
+    private let reminderLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Напомнить в"
+        label.font = UIFont.systemFont(ofSize: 16)
+        return label
+    }()
+
+    private let reminderDatePicker: UIDatePicker = {
+        let picker = UIDatePicker()
+        picker.datePickerMode = .dateAndTime
+        picker.preferredDatePickerStyle = .compact
+        picker.minimumDate = Date()
+        return picker
+    }()
+
+    func textViewDidChange(_ textView: UITextView) {
+        descriptionPlaceholderLabel.isHidden = !textView.text.isEmpty
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        title = task == nil ? "Новая задача" : "Редактировать задачу"
+        title = isNewTask ? "Новая задача" : "Редактировать задачу"
 
         setupViews()
         setupNavigationBar()
         populateData()
+
+        descriptionField.delegate = self
     }
 
     private func setupViews() {
         view.addSubview(titleField)
         view.addSubview(descriptionField)
-        view.addSubview(completedSwitch)
+        view.addSubview(reminderLabel)
+        view.addSubview(reminderDatePicker)
+        descriptionField.addSubview(descriptionPlaceholderLabel)
 
         titleField.translatesAutoresizingMaskIntoConstraints = false
         descriptionField.translatesAutoresizingMaskIntoConstraints = false
-        completedSwitch.translatesAutoresizingMaskIntoConstraints = false
+        reminderLabel.translatesAutoresizingMaskIntoConstraints = false
+        reminderDatePicker.translatesAutoresizingMaskIntoConstraints = false
+        descriptionPlaceholderLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
             titleField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
@@ -67,8 +103,14 @@ class TaskDetailViewController: UIViewController {
             descriptionField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             descriptionField.heightAnchor.constraint(equalToConstant: 150),
 
-            completedSwitch.topAnchor.constraint(equalTo: descriptionField.bottomAnchor, constant: 20),
-            completedSwitch.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            reminderLabel.topAnchor.constraint(equalTo: descriptionField.bottomAnchor, constant: 20),
+            reminderLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+
+            reminderDatePicker.centerYAnchor.constraint(equalTo: reminderLabel.centerYAnchor),
+            reminderDatePicker.leadingAnchor.constraint(equalTo: reminderLabel.trailingAnchor, constant: 12),
+
+            descriptionPlaceholderLabel.topAnchor.constraint(equalTo: descriptionField.topAnchor, constant: 8),
+            descriptionPlaceholderLabel.leadingAnchor.constraint(equalTo: descriptionField.leadingAnchor, constant: 5),
         ])
     }
 
@@ -79,10 +121,20 @@ class TaskDetailViewController: UIViewController {
     }
 
     private func populateData() {
-        guard let task = task else { return }
+        guard let task = task else {
+            descriptionPlaceholderLabel.isHidden = false
+            reminderDatePicker.date = Date()
+            return
+        }
         titleField.text = task.title
         descriptionField.text = task.taskDescription
-        completedSwitch.isOn = task.completed
+        descriptionPlaceholderLabel.isHidden = !(task.taskDescription?.isEmpty ?? true)
+
+        if let reminderDate = task.reminderDate {
+            reminderDatePicker.date = reminderDate
+        } else {
+            reminderDatePicker.date = Date()
+        }
     }
 
     @objc private func saveTapped() {
@@ -92,18 +144,25 @@ class TaskDetailViewController: UIViewController {
         }
 
         let context = CoreDataManager.shared.context
-
         let taskToSave = task ?? Task(context: context)
 
         taskToSave.title = titleText
         taskToSave.taskDescription = descriptionField.text
-        taskToSave.completed = completedSwitch.isOn
-        if task == nil {
+        if isNewTask {
             taskToSave.createdAt = Date()
-            taskToSave.id = Int64(Date().timeIntervalSince1970) // простой уникальный ID
+            taskToSave.id = Int64(Date().timeIntervalSince1970)
         }
 
+        taskToSave.reminderDate = reminderDatePicker.date
+
         CoreDataManager.shared.save()
+
+        if let reminderDate = taskToSave.reminderDate, reminderDate > Date() {
+            NotificationManager.shared.scheduleNotification(for: taskToSave, at: reminderDate)
+        } else {
+            NotificationManager.shared.cancelNotification(for: taskToSave)
+        }
+
         delegate?.didSaveTask()
         navigationController?.popViewController(animated: true)
     }
@@ -114,4 +173,3 @@ class TaskDetailViewController: UIViewController {
         present(alert, animated: true)
     }
 }
-

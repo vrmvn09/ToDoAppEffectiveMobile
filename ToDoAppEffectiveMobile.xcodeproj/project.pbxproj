@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9D6825322DE7983E007EF76A /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 9D6825312DE79838007EF76A /* Readme.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		9D6824EF2DE72CBC007EF76A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		9D6824D52DE72CBA007EF76A /* ToDoAppEffectiveMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoAppEffectiveMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D6824EE2DE72CBC007EF76A /* ToDoAppEffectiveMobileTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ToDoAppEffectiveMobileTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D6824F82DE72CBC007EF76A /* ToDoAppEffectiveMobileUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ToDoAppEffectiveMobileUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D6825312DE79838007EF76A /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -92,6 +97,7 @@
 				9D6824F12DE72CBC007EF76A /* ToDoAppEffectiveMobileTests */,
 				9D6824FB2DE72CBC007EF76A /* ToDoAppEffectiveMobileUITests */,
 				9D6824D62DE72CBA007EF76A /* Products */,
+				9D6825312DE79838007EF76A /* Readme.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -225,6 +231,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D6825322DE7983E007EF76A /* Readme.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
